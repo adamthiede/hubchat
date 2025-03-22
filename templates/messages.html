@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <meta name="color-scheme" content="light dark"/>
+<meta http-equiv="refresh" content="60">
 <head>
     <meta charset="UTF-8">
     <title>Messages</title>
@@ -15,7 +16,11 @@
     </form>
     <ul>
         {% for message in messages %}
-            <li>{{ message[1] }} to {{ message[2] }}: {{ message[3] }}</li>
+	    {% if message[2] == user.login %}
+		<li><b>{{ message[1] }}</b>: {{ message[3] }}</li>
+	    {% else %}
+		<li>to {{ message[2] }}: {{ message[3] }}</li>
+	    {% endif %}
         {% endfor %}
     </ul>
     <a href="{{ url_for('logout') }}">Logout</a>

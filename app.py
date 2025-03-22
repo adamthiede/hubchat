@@ -6,6 +6,7 @@ import os
 secret_key=os.environ.get('SECRET_KEY')
 client_id=os.environ.get('GITHUB_CLIENT_ID')
 client_secret=os.environ.get('GITHUB_CLIENT_SECRET')
+MESSAGE_LIMIT=os.environ.get('MESSAGE_LIMIT', 100)
 
 app = Flask(__name__)
 app.secret_key = secret_key
@@ -63,6 +64,14 @@ def messages():
     messages = c.fetchall()
     return render_template('messages.html', user=user.data, messages=messages)
 
+def prune_messages(sender, receiver):
+    c.execute('SELECT id FROM messages WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?) ORDER BY timestamp DESC', (sender, receiver, receiver, sender))
+    messages = c.fetchall()
+    if len(messages) > MESSAGE_LIMIT:
+        for message_id in messages[MESSAGE_LIMIT:]:
+            c.execute('DELETE FROM messages WHERE id=?', (message_id[0],))
+        conn.commit()
+
 @app.route('/send_message', methods=['POST'])
 def send_message():
     if 'github_token' not in session:
@@ -71,12 +80,14 @@ def send_message():
     receiver = request.form['receiver']
     message = request.form['message']
     c.execute('INSERT INTO messages (sender, receiver, message) VALUES (?, ?, ?)', (user.data['login'], receiver, message))
-    conn.commit()
+    #conn.commit()
+    prune_messages(user.data['login'], receiver)
     return redirect(url_for('messages'))
 
 @github.tokengetter
 def get_github_oauth_token():
     return session.get('github_token')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
