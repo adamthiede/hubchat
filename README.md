@@ -1,5 +1,7 @@
 # hubchat
 
+Github chat - a simple flask webapp that authenticates with github/oauth to enable DMs between github users.
+
 ## running
 
 ```bash
