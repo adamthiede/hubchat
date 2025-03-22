@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "myapp"
+version = "0.1.0"
+description = "A simple web application with GitHub authentication and messaging"
+authors = [
+    { name = "Adam Thiede", email = "me@adamthiede.com" }
+]
+dependencies = [
+    "Flask>=2.0",
+    "Flask-OAuthlib>=0.9.5",
+    "requests>=2.25.1"
+]
+
+[tool.flask]
+env = "development"
+debug = true
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["myapp"]
