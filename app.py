@@ -21,7 +21,7 @@ github = oauth.remote_app(
     request_token_url=None,
     access_token_method='POST',
     access_token_url='https://github.com/login/oauth/access_token',
-    authorize_url='https://github.com/login/oauth/authorize'
+    authorize_url='https://github.com/login/oauth/authorize',
 )
 
 conn = sqlite3.connect('messages.db', check_same_thread=False)
@@ -36,7 +36,10 @@ def index():
 
 @app.route('/login')
 def login():
+    if request.headers.get('X-Forwarded-Proto', None)=='https':
+        return github.authorize(callback=url_for('authorized', _external=True, _scheme='https'))
     return github.authorize(callback=url_for('authorized', _external=True))
+
 
 @app.route('/logout')
 def logout():
