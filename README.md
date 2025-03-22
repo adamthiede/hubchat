@@ -12,3 +12,7 @@ export GITHUB_CLIENT_SECRET='clientsecret'
 export MESSAGE_LIMIT='5'
 flask run
 ```
+
+## demo
+
+[working demo](https://hubchat.adamthiede.com). No uptime guarantees.
