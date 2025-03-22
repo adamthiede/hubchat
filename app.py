@@ -1,12 +1,11 @@
 from flask import Flask, redirect, url_for, session, request, render_template
 from flask_oauthlib.client import OAuth
-import sqlite3
-import os
+import sqlite3, os, time
 
 secret_key=os.environ.get('SECRET_KEY')
 client_id=os.environ.get('GITHUB_CLIENT_ID')
 client_secret=os.environ.get('GITHUB_CLIENT_SECRET')
-MESSAGE_LIMIT=os.environ.get('MESSAGE_LIMIT', 100)
+MESSAGE_LIMIT=int(os.environ.get('MESSAGE_LIMIT', 100))
 
 app = Flask(__name__)
 app.secret_key = secret_key
@@ -28,7 +27,7 @@ github = oauth.remote_app(
 conn = sqlite3.connect('messages.db', check_same_thread=False)
 c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS messages
-             (id INTEGER PRIMARY KEY, sender TEXT, receiver TEXT, message TEXT)''')
+             (id INTEGER PRIMARY KEY, sender TEXT, receiver TEXT, message TEXT, timestamp INTEGER)''')
 conn.commit()
 
 @app.route('/')
@@ -79,8 +78,9 @@ def send_message():
     user = github.get('user')
     receiver = request.form['receiver']
     message = request.form['message']
-    c.execute('INSERT INTO messages (sender, receiver, message) VALUES (?, ?, ?)', (user.data['login'], receiver, message))
-    #conn.commit()
+    timestamp = int(time.time())
+    c.execute('INSERT INTO messages (sender, receiver, message, timestamp) VALUES (?, ?, ?, ?)', (user.data['login'], receiver, message, timestamp))
+    conn.commit()
     prune_messages(user.data['login'], receiver)
     return redirect(url_for('messages'))
 
