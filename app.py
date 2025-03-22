@@ -1,6 +1,7 @@
 from flask import Flask, redirect, url_for, session, request, render_template
 from flask_oauthlib.client import OAuth
 import sqlite3
+import os
 
 secret_key=os.environ.get('SECRET_KEY')
 client_id=os.environ.get('GITHUB_CLIENT_ID')
